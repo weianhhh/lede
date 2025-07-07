@@ -8,8 +8,10 @@
 name: OpenWrt-CI
 
 on:
+  workflow_dispatch:     # ✅ 加上这行，启用手动按钮
   schedule:
     - cron: 0 20 * * *
+
 
 permissions:
   contents: read
