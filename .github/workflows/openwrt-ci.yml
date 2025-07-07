@@ -63,7 +63,13 @@ jobs:
           sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
+      - name: Cache dl folder (downloaded tarballs)
+        uses: actions/cache@v3
+        with:
+          path: dl
+          key: openwrt-dl-${{ hashFiles('.config') }}
+          restore-keys: |
+            openwrt-dl-
       - name: Generate configuration file
         run: make defconfig
 
