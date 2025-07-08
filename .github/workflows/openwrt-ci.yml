@@ -79,10 +79,24 @@ jobs:
           mkdir -p ./artifact/package
           mkdir -p ./artifact/buildinfo
           mkdir -p ./artifact/firmware
+
+          # 清理 packages 目录
           rm -rf $(find ./bin/targets/ -type d -name "packages")
-          cp -rf $(find ./bin/packages/ -type f -name "*.ipk") ./artifact/package/
-          cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
-          cp -rf $(find ./bin/targets/ -type f -name "*.bin" -o -name "*.img*" -o -name "*.itb" -o -name "*.tar") ./artifact/firmware/
+
+          # 复制 ipk 包
+          find ./bin/packages/ -type f -name "*.ipk" -exec cp -vf {} ./artifact/package/ \;
+
+          # 复制 buildinfo/manifest
+          find ./bin/targets/ -type f \( -name "*.buildinfo" -o -name "*.manifest" \) -exec cp -vf {} ./artifact/buildinfo/ \;
+
+          # 复制 firmware 文件，避免找不到时报错
+          firmware_files=$(find ./bin/targets/ -type f \( -name "*.bin" -o -name "*.img" -o -name "*.itb" -o -name "*.tar" -o -name "*.gz" \))
+          if [ -n "$firmware_files" ]; then
+            echo "📦 Copying firmware files..."
+            echo "$firmware_files" | xargs -I {} cp -vf {} ./artifact/firmware/
+          else
+            echo "⚠️ No firmware files found. Skipping copy."
+          fi
 
       - name: Upload buildinfo
         uses: actions/upload-artifact@v4
